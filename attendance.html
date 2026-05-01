@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Attendance Management System</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 0% 0%, #1abc9c22, transparent 55%),
+        radial-gradient(circle at 100% 100%, #9b59b622, transparent 55%),
+        linear-gradient(135deg, #0f172a, #020617);
+    color: #e5e7eb;
+}
+
+.container {
+    width: 100%;
+    max-width: 1150px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 18px;
+    padding: 22px 26px 28px;
+    box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.7),
+        0 0 0 1px rgba(148, 163, 184, 0.18);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 16px;
+    color: #f9fafb;
+    letter-spacing: 0.04em;
+    font-size: 26px;
+}
+
+.subheading {
+    text-align: center;
+    font-size: 13px;
+    color: #9ca3af;
+    margin-bottom: 18px;
+}
+
+.top-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) minmax(0, 1.2fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.card {
+    background: radial-gradient(circle at top left, #1e293b, #020617);
+    border-radius: 12px;
+    padding: 10px 12px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.6);
+}
+
+.card-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+input, select {
+    padding: 7px 9px;
+    border-radius: 7px;
+    border: 1px solid rgba(75, 85, 99, 0.8);
+    background: rgba(15, 23, 42, 0.9);
+    color: #e5e7eb;
+    font-size: 13px;
+    min-width: 130px;
+}
+
+button {
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(135deg, #38bdf8, #6366f1);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-small { padding: 5px 10px; font-size: 12px; }
+
+.btn-present { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+.btn-absent  { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; }
+.btn-delete  { background: linear-gradient(135deg, #475569, #1f2937); color: white; }
+
+.table-wrapper {
+    margin-top: 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.36);
+    overflow: hidden;
+}
+
+.table-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #222;
+    font-size: 13px;
+}
+
+.status-pill {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+}
+
+.pill-present { background: #064e3b; color: #bbf7d0; }
+.pill-absent  { background: #450a0a; color: #fecaca; }
+.pill-unmarked { background: #1f2937; color: #e5e7eb; }
+
+.summary {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.summary-card {
+    background: #020617;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.footer-note {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 11px;
+    color: #6b7280;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <h1>Attendance Management System</h1>
+    <p class="subheading">Manage classes, add students, and mark daily attendance with a clean glassmorphism UI.</p>
+
+    <div class="top-bar">
+        <div class="card">
+            <p class="card-title">Class & sections</p>
+            <select id="classSelect"></select>
+            <input id="newClassInput" placeholder="New class name">
+            <button id="addClassBtn">+ Class</button>
+        </div>
+
+        <div class="card">
+            <p class="card-title">Student roster</p>
+            <input id="studentNameInput" placeholder="Student name">
+            <input id="studentRollInput" placeholder="Roll no.">
+            <button id="addStudentBtn">+ Student</button>
+        </div>
+
+        <div class="card">
+            <p class="card-title">Attendance date</p>
+            <input type="date" id="dateInput">
+            <button id="saveAttendanceBtn">Save Today</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <div class="table-header">
+            <h2>Students</h2>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Roll</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Mark</th>
+                </tr>
+            </thead>
+            <tbody id="studentsBody"></tbody>
+        </table>
+    </div>
+
+    <div class="summary">
+        <div class="summary-card">Total: <span id="totalStudents">0</span></div>
+        <div class="summary-card">Present: <span id="totalPresent">0</span></div>
+        <div class="summary-card">Absent: <span id="totalAbsent">0</span></div>
+        <div class="summary-card">Unmarked: <span id="totalUnmarked">0</span></div>
+    </div>
+
+    <p class="footer-note">All attendance data is stored locally in your browser using localStorage.</p>
+</div>
+
+<script>
+const STORAGE_CLASSES = "ams_classes";
+const STORAGE_STUDENTS = "ams_students";
+const STORAGE_ATT = "ams_attendance";
+
+const classSelect = document.getElementById("classSelect");
+const newClassInput = document.getElementById("newClassInput");
+const addClassBtn = document.getElementById("addClassBtn");
+
+const nameInput = document.getElementById("studentNameInput");
+const rollInput = document.getElementById("studentRollInput");
+const addBtn = document.getElementById("addStudentBtn");
+
+const dateInput = document.getElementById("dateInput");
+const tbody = document.getElementById("studentsBody");
+
+const totalStudents = document.getElementById("totalStudents");
+const totalPresent = document.getElementById("totalPresent");
+const totalAbsent = document.getElementById("totalAbsent");
+const totalUnmarked = document.getElementById("totalUnmarked");
+
+function get(key, def) {
+    try { return JSON.parse(localStorage.getItem(key)) || def; }
+    catch { return def; }
+}
+function set(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+}
+
+function init() {
+    dateInput.value = new Date().toISOString().slice(0,10);
+    let classes = get(STORAGE_CLASSES, []);
+    if(classes.length === 0) {
+        classes = ["Class A"];
+        set(STORAGE_CLASSES, classes);
+    }
+    classSelect.innerHTML = "";
+    classes.forEach(c => {
+        const o = document.createElement("option");
+        o.textContent = c;
+        classSelect.appendChild(o);
+    });
+    loadStudents();
+}
+
+function loadStudents() {
+    const cls = classSelect.value;
+    const data = get(STORAGE_STUDENTS, {});
+    let students = data[cls] || [];
+
+    // SORT BY ROLL (KEY ATTRIBUTE)
+    students.sort((a,b)=>Number(a.roll)-Number(b.roll));
+
+    render(students);
+}
+
+function render(students) {
+    const cls = classSelect.value;
+    const date = dateInput.value;
+    const att = get(STORAGE_ATT, {});
+    const today = (att[cls] && att[cls][date]) || {};
+
+    tbody.innerHTML = "";
+
+    let p=0,a=0,u=0;
+
+    students.forEach((s,i)=>{
+        const status = today[s.roll] || "unmarked";
+        if(status==="present") p++;
+        else if(status==="absent") a++;
+        else u++;
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${i+1}</td>
+            <td>${s.roll}</td>
+            <td>${s.name}</td>
+            <td><span class="status-pill pill-${status}">${status.toUpperCase()}</span></td>
+            <td>
+                <button class="btn-small btn-present" onclick="mark('${s.roll}','present')">Present</button>
+                <button class="btn-small btn-absent" onclick="mark('${s.roll}','absent')">Absent</button>
+                <button class="btn-small btn-delete" onclick="del('${s.roll}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+
+    totalStudents.textContent = students.length;
+    totalPresent.textContent = p;
+    totalAbsent.textContent = a;
+    totalUnmarked.textContent = u;
+}
+
+function mark(roll,status) {
+    const cls = classSelect.value;
+    const date = dateInput.value;
+    const att = get(STORAGE_ATT,{});
+    if(!att[cls]) att[cls]={};
+    if(!att[cls][date]) att[cls][date]={};
+    att[cls][date][roll]=status;
+    set(STORAGE_ATT,att);
+    loadStudents();
+}
+
+function del(roll) {
+    if(!confirm("Delete student roll "+roll+"?")) return;
+    const cls = classSelect.value;
+    const data = get(STORAGE_STUDENTS,{});
+    data[cls] = (data[cls]||[]).filter(s=>s.roll!==roll);
+    set(STORAGE_STUDENTS,data);
+    loadStudents();
+}
+
+addBtn.onclick = ()=>{
+    const name=nameInput.value.trim();
+    const roll=rollInput.value.trim();
+    if(!name||!roll) return alert("Fill fields");
+
+    const cls = classSelect.value;
+    const data=get(STORAGE_STUDENTS,{});
+    data[cls]=data[cls]||[];
+
+    // BLOCK DUPLICATE ROLL (KEY ENFORCED)
+    if(data[cls].some(s=>s.roll===roll)) {
+        return alert("Roll already exists!");
+    }
+
+    data[cls].push({name, roll});
+    set(STORAGE_STUDENTS,data);
+
+    nameInput.value="";
+    rollInput.value="";
+    loadStudents();
+};
+
+addClassBtn.onclick = ()=>{
+    const name=newClassInput.value.trim();
+    if(!name) return;
+    let cls=get(STORAGE_CLASSES,[]);
+    if(cls.includes(name)) return alert("Exists");
+    cls.push(name);
+    set(STORAGE_CLASSES,cls);
+    init();
+};
+
+classSelect.onchange=loadStudents;
+dateInput.onchange=loadStudents;
+
+init();
+</script>
+
+</body>
+</html>
